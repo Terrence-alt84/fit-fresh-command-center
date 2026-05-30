@@ -109,8 +109,15 @@ This repo is ready for Vercel's Git integration:
    to override).
 3. Deploy. Pushes to `main` auto-deploy.
 
-## Security follow-up (before sharing widely)
+## Authentication
 
-Phase 1 uses a permissive RLS policy so the app works without login. Before this
-is exposed publicly, add **Supabase Auth (single-owner login)** and tighten RLS
-to authenticated-only. This is the first item for the next phase.
+The app is gated by **single-owner login** (Supabase Auth, email + password):
+
+- `middleware.ts` redirects any unauthenticated request to `/login`.
+- Server components and server actions use a cookie-aware Supabase client
+  (`lib/supabase.ts`), so the database sees the logged-in user and RLS runs as
+  the `authenticated` role.
+- Sign out from the top-right of the nav bar.
+
+Database access is locked down with RLS: only the `authenticated` role can read
+or write. To add another user, create them in Supabase → Authentication → Users.

@@ -15,7 +15,7 @@ export async function updateIngredient(formData: FormData) {
   const yield_factor = num(formData.get("yield_factor")) ?? 1;
   const price_estimated = formData.get("price_estimated") === "on";
 
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from("ingredients")
     .update({
@@ -35,7 +35,7 @@ export async function updateMealSellPrice(formData: FormData) {
   const id = String(formData.get("id"));
   const sell_price = num(formData.get("sell_price"));
 
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from("meals")
     .update({ sell_price, updated_at: new Date().toISOString() })
@@ -52,7 +52,7 @@ export async function updateRecipeLine(formData: FormData) {
   const amount = num(formData.get("amount"));
   const code = formData.get("code");
 
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from("meal_ingredients")
     .update({ amount })
@@ -70,7 +70,7 @@ export async function updateCostConstants(formData: FormData) {
   const target_margin_pct = num(formData.get("target_margin_pct")) ?? 55;
 
   // Versioned: insert a new current row rather than mutating history.
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { error } = await supabase.from("cost_constants").insert({
     labor_per_meal,
     expense_per_meal,

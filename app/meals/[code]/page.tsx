@@ -16,7 +16,7 @@ export default async function MealDetail({
 }) {
   const { code: raw } = await params;
   const code = "#" + decodeURIComponent(raw);
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
 
   const { data: meal } = await supabase
     .from("meals")

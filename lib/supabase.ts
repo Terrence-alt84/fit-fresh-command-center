@@ -1,15 +1,27 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./supabase-config";
 
-// Server-side Supabase client for the Fit & Fresh Command Center.
-// The publishable key is safe to embed (Supabase publishable keys are designed
-// to be shipped); access is governed by RLS. URL/key can be overridden via env.
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ?? "https://hwqvaivjstqikfxtbqgj.supabase.co";
-const SUPABASE_KEY =
-  process.env.SUPABASE_KEY ?? "sb_publishable_f9oqSpZCC-H1zaoeVMhwWw_-bsX9AhS";
-
-export function getSupabase() {
-  return createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: { persistSession: false },
+// Cookie-aware server client. Carries the logged-in user's session, so RLS
+// runs as the `authenticated` role (reads + writes). Used by server components
+// and server actions.
+export async function getSupabase() {
+  const cookieStore = await cookies();
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        } catch {
+          // Called from a Server Component where cookies are read-only.
+          // The middleware refreshes the session cookie, so this is safe to ignore.
+        }
+      },
+    },
   });
 }

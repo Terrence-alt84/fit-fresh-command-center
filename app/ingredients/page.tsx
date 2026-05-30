@@ -16,7 +16,7 @@ const CATEGORY_ORDER = [
 ];
 
 export default async function IngredientsPage() {
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("ingredients")
     .select("*")

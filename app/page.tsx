@@ -5,7 +5,7 @@ import { MealTable } from "./meal-table";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("meal_cost")
     .select("*")

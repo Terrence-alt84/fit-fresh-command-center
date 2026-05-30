@@ -5,7 +5,7 @@ import { updateCostConstants } from "@/app/actions";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const supabase = getSupabase();
+  const supabase = await getSupabase();
   const { data } = await supabase
     .from("cost_constants")
     .select("*")
