@@ -23,6 +23,7 @@ export type MealCost = {
   total_cost: number;
   cost_complete: boolean;
   recipe_lines: number;
+  item_type: string;
   gross_profit: number | null;
   margin_pct: number | null;
   food_cost_pct: number | null;

@@ -6,14 +6,26 @@ import { money, pct } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-const MEAL_CATEGORIES = [
+const CATEGORY_ORDER = [
   "Chicken",
   "Beef",
   "Turkey",
   "Shrimp",
+  "Fish",
   "Pork",
+  "Vegetarian",
   "Breakfast",
+  "Side",
+  "Other",
 ];
+
+function orderedCategories(cats: string[]): string[] {
+  return [...new Set(cats)].sort((a, b) => {
+    const ia = CATEGORY_ORDER.indexOf(a);
+    const ib = CATEGORY_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+  });
+}
 
 export default async function WeekEditor({
   params,
@@ -109,9 +121,7 @@ export default async function WeekEditor({
         </div>
       )}
 
-      {MEAL_CATEGORIES.filter((c) =>
-        meals.some((m) => m.protein_category === c)
-      ).map((cat) => (
+      {orderedCategories(meals.map((m) => m.protein_category)).map((cat) => (
         <div className="card" key={cat} style={{ marginBottom: 14 }}>
           <div className="card-head">{cat}</div>
           <table>

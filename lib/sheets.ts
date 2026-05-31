@@ -87,7 +87,8 @@ export async function loadMeals(inStoreOnly: boolean): Promise<Meal[]> {
       "id, code, name, protein_category, is_in_store, recipe_estimated, recipe_partial, " +
         "meal_ingredients(amount, ingredient:ingredients(id, name, category, order_unit, recipe_unit, yield_factor, per_each_oz, is_cheese, raw_price, station))"
     )
-    .eq("active", true);
+    .eq("active", true)
+    .in("item_type", ["meal_prep", "bulk_protein", "side"]);
   if (inStoreOnly) query = query.eq("is_in_store", true);
 
   const { data, error } = await query;

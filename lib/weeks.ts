@@ -89,6 +89,7 @@ export async function loadWeek(id: string): Promise<{
     .from("meal_cost")
     .select("*")
     .eq("active", true)
+    .in("item_type", ["meal_prep", "bulk_protein", "side"])
     .order("protein_category");
 
   const counts: Record<string, number> = {};
