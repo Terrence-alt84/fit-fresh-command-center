@@ -32,10 +32,11 @@ export default function LoginPage() {
   return (
     <div className="login-wrap">
       <form className="login-card" onSubmit={onSubmit}>
-        <div className="login-brand">
-          Fit <span>&amp;</span> Fresh <span>Command Center</span>
-        </div>
-        <p className="login-sub">Sign in to continue</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="login-logo" src="/logo-stacked.png" alt="Fit & Fresh Meals" />
+        <p className="login-sub" style={{ textAlign: "center" }}>
+          Command Center · Sign in to continue
+        </p>
 
         <label>
           Email

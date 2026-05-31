@@ -36,9 +36,8 @@ export function TopBar() {
 
   return (
     <header className="topbar">
-      <div className="brand">
-        Fit <span>&amp;</span> Fresh <span>Command Center</span>
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="logo" src="/logo-stacked.png" alt="Fit & Fresh Meals" />
       <nav>
         <NavLink href="/">Profitability</NavLink>
         <NavLink href="/weeks">Weekly Menu</NavLink>

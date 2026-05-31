@@ -43,42 +43,41 @@ a:hover {
 
 /* ---------- Layout ---------- */
 .topbar {
-  background: var(--navy);
-  color: #fff;
+  background: #fff;
+  color: var(--navy-dark);
   padding: 0 24px;
   display: flex;
   align-items: center;
-  gap: 28px;
-  height: 58px;
+  gap: 22px;
+  height: 64px;
+  border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
-.topbar .brand {
-  font-weight: 800;
-  font-size: 17px;
-  letter-spacing: 0.2px;
-  color: #fff;
-}
-.topbar .brand span {
-  color: var(--orange);
+.topbar .logo {
+  height: 46px;
+  width: auto;
+  display: block;
 }
 .topbar nav {
   display: flex;
   gap: 4px;
+  align-items: center;
+  margin-left: auto;
 }
 .topbar nav a {
-  color: #cfe0ee;
+  color: var(--navy);
   padding: 8px 14px;
   border-radius: 7px;
   font-weight: 600;
   font-size: 13px;
 }
 .topbar nav a:hover {
-  background: var(--navy-dark);
-  color: #fff;
+  background: var(--orange-soft);
+  color: var(--navy-dark);
   text-decoration: none;
 }
 .topbar nav a.active {
-  background: var(--navy-dark);
+  background: var(--navy);
   color: #fff;
 }
 
@@ -360,8 +359,8 @@ input.cell-input {
 /* ---------- Auth ---------- */
 .signout {
   background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: var(--navy);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 6px 12px;
   font-weight: 600;
@@ -371,7 +370,14 @@ input.cell-input {
   margin-left: 6px;
 }
 .signout:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: #f1f5f9;
+}
+.login-logo {
+  width: 230px;
+  max-width: 80%;
+  height: auto;
+  display: block;
+  margin: 0 auto 2px;
 }
 .login-wrap {
   min-height: 70vh;
