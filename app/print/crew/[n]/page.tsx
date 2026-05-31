@@ -78,10 +78,10 @@ export default async function CrewSheet({
       </div>
 
       {STATIONS.map((s) => {
-        const sr = rows.filter((r) => s.match(r));
+        const sr = rows.filter((r) => r.station === s.n);
         if (!sr.length) return null;
         return (
-          <div key={s.label} style={{ breakInside: "avoid" }}>
+          <div key={s.n} style={{ breakInside: "avoid" }}>
             <div className="cat-head">{s.label}</div>
             <table className="grid">
               <thead>

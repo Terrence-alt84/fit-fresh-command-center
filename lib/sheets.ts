@@ -50,6 +50,7 @@ export type Ing = {
   per_each_oz: number | null;
   is_cheese: boolean;
   raw_price: number | null;
+  station: number;
 };
 
 export type Line = { amount: number; ingredient: Ing };
@@ -74,6 +75,7 @@ export type PullRow = {
   cooked: number; // order-unit amount cooked/plated
   flagged: boolean; // appears in an estimated/partial recipe
   unpriced: boolean;
+  station: number; // cook fire-order station (1-5)
 };
 
 // Load active meals with their recipe lines + ingredient attributes.
@@ -83,7 +85,7 @@ export async function loadMeals(inStoreOnly: boolean): Promise<Meal[]> {
     .from("meals")
     .select(
       "id, code, name, protein_category, is_in_store, recipe_estimated, recipe_partial, " +
-        "meal_ingredients(amount, ingredient:ingredients(id, name, category, order_unit, recipe_unit, yield_factor, per_each_oz, is_cheese, raw_price))"
+        "meal_ingredients(amount, ingredient:ingredients(id, name, category, order_unit, recipe_unit, yield_factor, per_each_oz, is_cheese, raw_price, station))"
     )
     .eq("active", true);
   if (inStoreOnly) query = query.eq("is_in_store", true);
@@ -155,6 +157,7 @@ export function aggregatePull(
       cooked: 0,
       flagged: false,
       unpriced: i.raw_price === null,
+      station: i.station,
     };
     map.set(i.id, row);
     return row;
@@ -237,29 +240,14 @@ export const MEAL_CATEGORIES = [
   "Breakfast",
 ];
 
-// Crew COOK page: 5 stations in fire order (spec §2). Each claims a set of rows.
-function isPotatoOrRoast(name: string): boolean {
-  const n = name.toLowerCase();
-  return n.includes("potato") || n.includes("tot") || n.includes("roast");
-}
-export const STATIONS: { label: string; match: (r: PullRow) => boolean }[] = [
-  {
-    label: "1 · Rice & Noodles",
-    match: (r) => r.category === "Grain/Starch" && !isPotatoOrRoast(r.name),
-  },
-  { label: "2 · Proteins", match: (r) => r.category === "Protein" },
-  {
-    label: "3 · Potatoes & Roast",
-    match: (r) => r.category === "Grain/Starch" && isPotatoOrRoast(r.name),
-  },
-  { label: "4 · Vegetables", match: (r) => r.category === "Vegetable" },
-  {
-    label: "5 · Sauce, Cheese & Pack",
-    match: (r) =>
-      ["Sauce", "Cheese", "Egg/Dairy", "Wrap/Bread", "Other"].includes(
-        r.category
-      ),
-  },
+// Crew COOK page: 5 stations in fire order (spec §2), driven by the
+// ingredients.station column (1-5). Each row carries its station.
+export const STATIONS: { n: number; label: string }[] = [
+  { n: 1, label: "1 · Rice & Noodles" },
+  { n: 2, label: "2 · Proteins" },
+  { n: 3, label: "3 · Potatoes & Roast" },
+  { n: 4, label: "4 · Vegetables" },
+  { n: 5, label: "5 · Sauce, Cheese & Pack" },
 ];
 
 // First Protein-category line of a meal (deterministic) — the XP +2oz target.
@@ -278,7 +266,7 @@ export async function loadAllIngredients(): Promise<Ing[]> {
   const { data, error } = await supabase
     .from("ingredients")
     .select(
-      "id, name, category, order_unit, recipe_unit, yield_factor, per_each_oz, is_cheese, raw_price"
+      "id, name, category, order_unit, recipe_unit, yield_factor, per_each_oz, is_cheese, raw_price, station"
     );
   if (error) throw new Error(error.message);
   return ((data ?? []) as unknown as Ing[]).slice().sort(
