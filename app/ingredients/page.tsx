@@ -1,6 +1,14 @@
 import { getSupabase } from "@/lib/supabase";
 import { Ingredient } from "@/lib/types";
-import { updateIngredient } from "@/app/actions";
+import { updateIngredient, createIngredient } from "@/app/actions";
+
+const STATIONS = [
+  { n: 1, label: "1 · Rice & Noodles" },
+  { n: 2, label: "2 · Proteins" },
+  { n: 3, label: "3 · Potatoes & Roast" },
+  { n: 4, label: "4 · Vegetables" },
+  { n: 5, label: "5 · Sauce / Cheese / Pack" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +57,67 @@ export default async function IngredientsPage() {
           unlock costing for the meals that use them.
         </div>
       )}
+
+      <details className="card" style={{ marginBottom: 18 }}>
+        <summary
+          className="card-head"
+          style={{ cursor: "pointer", listStyle: "revert" }}
+        >
+          + Add ingredient
+        </summary>
+        <form
+          action={createIngredient}
+          style={{ padding: 16, display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end" }}
+        >
+          <div className="field" style={{ marginBottom: 0, minWidth: 200 }}>
+            <label>Name</label>
+            <input type="text" name="name" placeholder="e.g. Black beans" required />
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Category</label>
+            <select name="category" defaultValue="Protein">
+              {CATEGORY_ORDER.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Order unit (how you buy)</label>
+            <select name="order_unit" defaultValue="lb">
+              <option value="lb">lb</option>
+              <option value="oz">oz</option>
+              <option value="each">each</option>
+            </select>
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Recipe unit</label>
+            <select name="recipe_unit" defaultValue="oz">
+              <option value="oz">oz</option>
+              <option value="each">each</option>
+            </select>
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Sysco $ / unit</label>
+            <input className="cell-input" type="number" step="0.0001" name="raw_price" placeholder="—" />
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Yield (cooked→raw)</label>
+            <input className="cell-input" type="number" step="0.0001" name="yield_factor" defaultValue={1} style={{ width: 80 }} />
+          </div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label>Cook station</label>
+            <select name="station" defaultValue={5}>
+              {STATIONS.map((s) => (
+                <option key={s.n} value={s.n}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+          <label className="muted" style={{ display: "flex", gap: 5, fontSize: 12, paddingBottom: 8 }}>
+            <input type="checkbox" name="is_cheese" /> cheese (force 0.5 oz)
+          </label>
+          <button className="btn" type="submit">Add ingredient</button>
+        </form>
+      </details>
 
       {byCat.map((g) => (
         <div className="card" key={g.cat} style={{ marginBottom: 18 }}>

@@ -82,3 +82,50 @@ export async function updateCostConstants(formData: FormData) {
   revalidatePath("/settings");
   revalidatePath("/");
 }
+
+export async function createIngredient(formData: FormData) {
+  const name = String(formData.get("name") || "").trim();
+  if (!name) return;
+  const category = String(formData.get("category") || "Other");
+  const order_unit = String(formData.get("order_unit") || "lb");
+  const recipe_unit = String(formData.get("recipe_unit") || "oz");
+  const raw_price = num(formData.get("raw_price"));
+  const yield_factor = num(formData.get("yield_factor")) ?? 1;
+  const per_each_oz = num(formData.get("per_each_oz"));
+  const is_cheese = formData.get("is_cheese") === "on";
+  const station = parseInt(String(formData.get("station") || "5"), 10) || 5;
+
+  const base =
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 40) || "ingredient";
+
+  const supabase = await getSupabase();
+  let key = base;
+  for (let i = 2; i < 50; i++) {
+    const { data } = await supabase
+      .from("ingredients")
+      .select("id")
+      .eq("key", key)
+      .maybeSingle();
+    if (!data) break;
+    key = `${base}_${i}`;
+  }
+
+  const { error } = await supabase.from("ingredients").insert({
+    key,
+    name,
+    category,
+    order_unit,
+    recipe_unit,
+    raw_price,
+    yield_factor,
+    per_each_oz,
+    is_cheese,
+    station,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/ingredients");
+}
