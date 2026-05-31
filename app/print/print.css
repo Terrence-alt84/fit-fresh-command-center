@@ -1,0 +1,153 @@
+/* Printable kitchen sheets — landscape letter, Fit & Fresh brand. */
+@page {
+  size: letter landscape;
+  margin: 0.4in;
+}
+
+.sheet {
+  font-family: Helvetica, Arial, sans-serif;
+  color: #0e4368;
+  max-width: 10.2in;
+  margin: 0 auto;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 3px solid #155a8a;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+.sheet-head .brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: #155a8a;
+}
+.sheet-head .brand span {
+  color: #e07b2c;
+}
+.sheet-head .meta {
+  font-size: 12px;
+  color: #155a8a;
+  text-align: right;
+}
+.sheet-title {
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0 0 8px;
+}
+
+.cat-head {
+  background: #e07b2c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  margin-top: 8px;
+}
+
+table.grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+table.grid th,
+table.grid td {
+  border: 1px solid #c7d4de;
+  padding: 3px 8px;
+  text-align: left;
+}
+table.grid th {
+  background: #eef3f7;
+  color: #155a8a;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+table.grid td.amt {
+  font-weight: bold;
+  color: #155a8a;
+  white-space: nowrap;
+}
+table.grid td.box {
+  width: 1.1in;
+}
+table.grid td.chk {
+  width: 0.45in;
+  text-align: center;
+}
+.flag {
+  color: #e07b2c;
+  font-weight: bold;
+}
+.cols2 {
+  column-count: 2;
+  column-gap: 18px;
+}
+
+/* BUILD page meal cards */
+.build-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.meal-card {
+  border: 1px solid #c7d4de;
+  border-radius: 4px;
+  padding: 6px 8px;
+  break-inside: avoid;
+}
+.meal-card .badge {
+  display: inline-block;
+  background: #155a8a;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 13px;
+}
+.meal-card .mname {
+  font-weight: bold;
+  font-size: 12px;
+}
+.meal-card ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 11px;
+}
+.page-break {
+  break-before: page;
+}
+
+.printbtn {
+  background: #155a8a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 8px 0 14px;
+}
+.printbtn:hover {
+  background: #0e4368;
+}
+.footnote {
+  font-size: 10px;
+  color: #6b7c88;
+  margin-top: 10px;
+}
+
+@media print {
+  header.topbar,
+  .no-print {
+    display: none !important;
+  }
+  .container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

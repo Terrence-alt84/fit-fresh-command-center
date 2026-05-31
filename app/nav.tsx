@@ -43,6 +43,7 @@ export function TopBar() {
         <NavLink href="/">Profitability</NavLink>
         <NavLink href="/ingredients">Ingredients</NavLink>
         <NavLink href="/settings">Cost Settings</NavLink>
+        <NavLink href="/print">Print Sheets</NavLink>
         <button type="button" className="signout" onClick={signOut}>
           Sign out
         </button>
