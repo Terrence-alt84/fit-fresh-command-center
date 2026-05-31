@@ -129,3 +129,35 @@ export async function createIngredient(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/ingredients");
 }
+
+export async function addRecipeLine(formData: FormData) {
+  const meal_id = String(formData.get("meal_id"));
+  const ingredient_id = String(formData.get("ingredient_id"));
+  const amount = num(formData.get("amount"));
+  const code = formData.get("code");
+  if (!meal_id || !ingredient_id || amount === null) return;
+  const supabase = await getSupabase();
+  // upsert so re-adding an ingredient updates its amount instead of erroring
+  const { error } = await supabase
+    .from("meal_ingredients")
+    .upsert(
+      { meal_id, ingredient_id, amount },
+      { onConflict: "meal_id,ingredient_id" }
+    );
+  if (error) throw new Error(error.message);
+  if (code) revalidatePath(`/meals/${code}`);
+  revalidatePath("/");
+}
+
+export async function removeRecipeLine(formData: FormData) {
+  const line_id = String(formData.get("line_id"));
+  const code = formData.get("code");
+  const supabase = await getSupabase();
+  const { error } = await supabase
+    .from("meal_ingredients")
+    .delete()
+    .eq("id", line_id);
+  if (error) throw new Error(error.message);
+  if (code) revalidatePath(`/meals/${code}`);
+  revalidatePath("/");
+}

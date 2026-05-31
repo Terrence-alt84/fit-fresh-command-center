@@ -3,7 +3,12 @@ import { notFound } from "next/navigation";
 import { getSupabase } from "@/lib/supabase";
 import { Ingredient, MealCost, money, pct, marginTier } from "@/lib/types";
 import { lineCost } from "@/lib/costing";
-import { updateMealSellPrice, updateRecipeLine } from "@/app/actions";
+import {
+  updateMealSellPrice,
+  updateRecipeLine,
+  addRecipeLine,
+  removeRecipeLine,
+} from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +35,13 @@ export default async function MealDetail({
     .select("id, amount, ingredient:ingredients(*)")
     .eq("meal_id", meal.id);
   const lines = (linesData ?? []) as unknown as Line[];
+
+  const { data: ingData } = await supabase
+    .from("ingredients")
+    .select("*")
+    .order("category")
+    .order("name");
+  const allIngredients = (ingData ?? []) as Ingredient[];
 
   const { data: mc } = await supabase
     .from("meal_cost")
@@ -120,15 +132,80 @@ export default async function MealDetail({
                         money(lc, 3)
                       )}
                     </td>
-                    <td></td>
+                    <td>
+                      <form action={removeRecipeLine}>
+                        <input type="hidden" name="line_id" value={l.id} />
+                        <input type="hidden" name="code" value={raw} />
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          type="submit"
+                          title="Remove from recipe"
+                        >
+                          ✕
+                        </button>
+                      </form>
+                    </td>
                   </tr>
                 );
               })}
+              {lines.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="muted" style={{ padding: "12px 18px" }}>
+                    No recipe yet — add ingredients below to make this meal cost
+                    out and appear on production sheets.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
+
+          <form
+            action={addRecipeLine}
+            style={{
+              display: "flex",
+              gap: 8,
+              padding: "12px 18px",
+              flexWrap: "wrap",
+              alignItems: "flex-end",
+              borderTop: "1px solid var(--border)",
+            }}
+          >
+            <input type="hidden" name="meal_id" value={meal.id} />
+            <input type="hidden" name="code" value={raw} />
+            <div className="field" style={{ marginBottom: 0, minWidth: 240 }}>
+              <label>Add ingredient</label>
+              <select name="ingredient_id" defaultValue="" required>
+                <option value="" disabled>
+                  Pick an ingredient…
+                </option>
+                {allIngredients.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name} · {i.category} ({i.recipe_unit})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field" style={{ marginBottom: 0 }}>
+              <label>Amount</label>
+              <input
+                className="cell-input"
+                type="number"
+                step="0.01"
+                name="amount"
+                placeholder="oz / ct"
+                required
+              />
+            </div>
+            <button className="btn" type="submit">
+              Add to recipe
+            </button>
+          </form>
+
           <div style={{ padding: "10px 18px", fontSize: 12 }} className="muted">
             Amounts are cooked / plated weights. Line cost applies cooked→raw
             yield and the 0.5oz cheese standard, matching the kitchen rules.
+            Need an ingredient that isn&apos;t listed? Add it on the{" "}
+            <a href="/ingredients">Ingredients</a> page first.
           </div>
         </div>
 
