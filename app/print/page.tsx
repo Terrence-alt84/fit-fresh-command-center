@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function PrintMenu() {
   const [n, setN] = useState(8);
   const router = useRouter();
-  const go = (kind: string) => router.push(`/print/${kind}/${n}`);
+  const go = (path: string) => router.push(path);
 
   const card: CSSProperties = {
     display: "block",
@@ -26,8 +26,8 @@ export default function PrintMenu() {
     <div className="no-print" style={{ maxWidth: 560 }}>
       <h1 style={{ color: "#155a8a" }}>Kitchen Sheets</h1>
       <p style={{ color: "#6b7c88" }}>
-        Generate a print-ready sheet for <b>{n}×</b> of each always-available
-        in-store meal. Each opens ready to Print → Save as PDF.
+        Print-ready sheets for <b>{n}×</b> of each always-available in-store
+        meal. Each opens ready to Print → Save as PDF.
       </p>
 
       <label style={{ fontWeight: 600 }}>
@@ -48,15 +48,25 @@ export default function PrintMenu() {
         <button onClick={() => setN(50)}>50× Friday batch</button>
       </p>
 
-      <button style={card} onClick={() => go("pull")}>
-        <b>📋 Pull list</b> — raw/dry quantities to pull, NEED filled in
+      <button style={card} onClick={() => go(`/print/batch/${n}`)}>
+        <b>📋 In-Store Batch Sheet</b> — STEP 1 cooler count + STEP 2 pull/order,
+        one page
       </button>
-      <button style={card} onClick={() => go("order")}>
-        <b>🛒 Order sheet</b> — NEED / HAVE / ORDER / ✓ for the walk-in count
+      <button style={card} onClick={() => go(`/print/crew/${n}`)}>
+        <b>👨‍🍳 Crew Sheet</b> — COOK (fire order + temps) + BUILD (per meal)
       </button>
-      <button style={card} onClick={() => go("crew")}>
-        <b>👨‍🍳 Crew sheet</b> — Cook page (fire order) + Build page (per meal)
+      <button style={card} onClick={() => go(`/print/order/${n}?mode=blank`)}>
+        <b>🛒 Weekly Order (blank)</b> — every ingredient, NEED/HAVE/ORDER to
+        hand-fill
       </button>
+      <button style={card} onClick={() => go(`/print/order/${n}`)}>
+        <b>🧾 Order Sheet (filled)</b> — NEED pre-computed for the {n}× batch
+      </button>
+
+      <p style={{ color: "#6b7c88", fontSize: 13, marginTop: 14 }}>
+        Extra-protein plates on the crew sheet: append{" "}
+        <code>?xp=40:2,88:1</code> to the crew URL (meal code : XP plate count).
+      </p>
     </div>
   );
 }
