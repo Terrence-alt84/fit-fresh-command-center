@@ -138,31 +138,46 @@ export function cookedAmount(i: Ing, recipeAmount: number): number {
 }
 
 // Aggregate pull needs across a batch (qtyByCode = { "#7": 8, ... }).
+// xpByCode adds Extra-Protein plates: +2 oz to each meal's first Protein line.
 export function aggregatePull(
   meals: Meal[],
-  qtyByCode: Record<string, number>
+  qtyByCode: Record<string, number>,
+  xpByCode: Record<string, number> = {}
 ): PullRow[] {
   const map = new Map<string, PullRow>();
+  const rowFor = (i: Ing): PullRow => {
+    const row = map.get(i.id) ?? {
+      ingredientId: i.id,
+      category: i.category,
+      name: i.name,
+      unit: i.order_unit,
+      raw: 0,
+      cooked: 0,
+      flagged: false,
+      unpriced: i.raw_price === null,
+    };
+    map.set(i.id, row);
+    return row;
+  };
   for (const m of meals) {
     const qty = qtyByCode[m.code] ?? 0;
     if (qty <= 0) continue;
     const flagged = m.recipe_estimated || m.recipe_partial;
     for (const l of m.lines) {
-      const i = l.ingredient;
-      const row = map.get(i.id) ?? {
-        ingredientId: i.id,
-        category: i.category,
-        name: i.name,
-        unit: i.order_unit,
-        raw: 0,
-        cooked: 0,
-        flagged: false,
-        unpriced: i.raw_price === null,
-      };
-      row.raw += qty * rawOrderAmount(i, l.amount);
-      row.cooked += qty * cookedAmount(i, l.amount);
+      const row = rowFor(l.ingredient);
+      row.raw += qty * rawOrderAmount(l.ingredient, l.amount);
+      row.cooked += qty * cookedAmount(l.ingredient, l.amount);
       if (flagged) row.flagged = true;
-      map.set(i.id, row);
+    }
+    // Extra Protein: +2 oz (cooked, pre-yield) per XP plate to the first protein.
+    const xp = xpByCode[m.code] ?? 0;
+    if (xp > 0) {
+      const pl = firstProteinLine(m);
+      if (pl) {
+        const row = rowFor(pl.ingredient);
+        row.raw += rawOrderAmount(pl.ingredient, 2 * xp);
+        row.cooked += cookedAmount(pl.ingredient, 2 * xp);
+      }
     }
   }
   return [...map.values()].sort(
@@ -206,5 +221,85 @@ export function buildLines(m: Meal): string[] {
 export function inStoreQty(meals: Meal[], perMeal: number): Record<string, number> {
   const out: Record<string, number> = {};
   for (const m of meals) if (m.is_in_store) out[m.code] = perMeal;
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// Spec additions: meal categories, 5-station fire order, XP, blank mode, inputs
+// ---------------------------------------------------------------------------
+
+export const MEAL_CATEGORIES = [
+  "Chicken",
+  "Beef",
+  "Turkey",
+  "Shrimp",
+  "Pork",
+  "Breakfast",
+];
+
+// Crew COOK page: 5 stations in fire order (spec §2). Each claims a set of rows.
+function isPotatoOrRoast(name: string): boolean {
+  const n = name.toLowerCase();
+  return n.includes("potato") || n.includes("tot") || n.includes("roast");
+}
+export const STATIONS: { label: string; match: (r: PullRow) => boolean }[] = [
+  {
+    label: "1 · Rice & Noodles",
+    match: (r) => r.category === "Grain/Starch" && !isPotatoOrRoast(r.name),
+  },
+  { label: "2 · Proteins", match: (r) => r.category === "Protein" },
+  {
+    label: "3 · Potatoes & Roast",
+    match: (r) => r.category === "Grain/Starch" && isPotatoOrRoast(r.name),
+  },
+  { label: "4 · Vegetables", match: (r) => r.category === "Vegetable" },
+  {
+    label: "5 · Sauce, Cheese & Pack",
+    match: (r) =>
+      ["Sauce", "Cheese", "Egg/Dairy", "Wrap/Bread", "Other"].includes(
+        r.category
+      ),
+  },
+];
+
+// First Protein-category line of a meal (deterministic) — the XP +2oz target.
+export function firstProteinLine(m: Meal): Line | null {
+  return (
+    m.lines
+      .filter((l) => l.ingredient.category === "Protein")
+      .sort((a, b) => a.ingredient.name.localeCompare(b.ingredient.name))[0] ??
+    null
+  );
+}
+
+// Every ingredient (for the blank / standby weekly order template).
+export async function loadAllIngredients(): Promise<Ing[]> {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from("ingredients")
+    .select(
+      "id, name, category, order_unit, recipe_unit, yield_factor, per_each_oz, is_cheese, raw_price"
+    );
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as unknown as Ing[]).slice().sort(
+    (a, b) =>
+      CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category) ||
+      a.name.localeCompare(b.name)
+  );
+}
+
+// Parse "7:8,40:5" (meal codes lose their leading # in query strings) -> {"#7":8,...}
+export function parseCounts(raw: string | undefined | null): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (!raw) return out;
+  for (const part of raw.split(",")) {
+    const [rawCode, q] = part.split(":");
+    if (!rawCode) continue;
+    const code = rawCode.trim().startsWith("#")
+      ? rawCode.trim()
+      : "#" + rawCode.trim();
+    const n = parseInt((q ?? "").trim(), 10);
+    if (Number.isFinite(n) && n > 0) out[code] = n;
+  }
   return out;
 }

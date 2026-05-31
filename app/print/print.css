@@ -101,7 +101,7 @@ table.grid td.chk {
 }
 .meal-card .badge {
   display: inline-block;
-  background: #155a8a;
+  background: #e07b2c;
   color: #fff;
   font-weight: bold;
   border-radius: 4px;
@@ -140,6 +140,121 @@ table.grid td.chk {
   margin-top: 10px;
 }
 
+/* ---- STEP 1 cooler-count (batch sheet) ---- */
+.step-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  background: #155a8a;
+  padding: 3px 8px;
+  margin: 12px 0 4px;
+}
+table.grid td.target {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #e07b2c;
+  width: 0.7in;
+}
+table.grid td.cream {
+  background: #fdf6ec;
+  width: 1in;
+}
+table.grid td.whats {
+  white-space: normal;
+  font-size: 10px;
+  color: #34495e;
+}
+
+/* ---- Crew furniture ---- */
+.crew-strip {
+  display: flex;
+  gap: 6px;
+  margin: 6px 0 8px;
+}
+.crew-slot {
+  flex: 1;
+  border: 1px solid #c7d4de;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 9px;
+  color: #6b7c88;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.crew-slot .line {
+  display: block;
+  border-bottom: 1px solid #c7d4de;
+  height: 15px;
+  margin-top: 3px;
+}
+.box-row {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0;
+}
+.run-of-day {
+  flex: 1.5;
+  background: #155a8a;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 11px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.cook-temp {
+  flex: 1;
+  background: #e07b2c;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 11px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.run-of-day b,
+.cook-temp b {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+}
+.build-cat-head {
+  font-size: 11px;
+  font-weight: bold;
+  color: #155a8a;
+  border-bottom: 2px solid #155a8a;
+  margin: 10px 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.xp-tag {
+  background: #e07b2c;
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 9px;
+  font-weight: bold;
+  margin-left: 4px;
+}
+.pack-label {
+  background: #eef3f7;
+  border: 1px solid #c7d4de;
+  border-radius: 6px;
+  padding: 8px 11px;
+  font-size: 10px;
+  margin-top: 10px;
+}
+.notes-shorts {
+  border: 1px solid #c7d4de;
+  border-radius: 6px;
+  padding: 8px 11px;
+  margin-top: 8px;
+  min-height: 46px;
+  font-size: 10px;
+  color: #6b7c88;
+}
+
 @media print {
   header.topbar,
   .no-print {
@@ -149,5 +264,9 @@ table.grid td.chk {
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
