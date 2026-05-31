@@ -41,6 +41,7 @@ export function TopBar() {
       </div>
       <nav>
         <NavLink href="/">Profitability</NavLink>
+        <NavLink href="/weeks">Weekly Menu</NavLink>
         <NavLink href="/ingredients">Ingredients</NavLink>
         <NavLink href="/settings">Cost Settings</NavLink>
         <NavLink href="/print">Print Sheets</NavLink>
